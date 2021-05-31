@@ -3,10 +3,20 @@ class Mandlebrot {
         this.pxY = pxY;
         this.pxX = pxX;
         this.iterateCount = 100;//Only works up to 254, fix is possible but hard.
+        this.xStart = 0;
+        this.yStart = 0;
+        this.xLength = 0;
+        this.yLength=0;
     }
 
 
     calcArray(xStart,yStart,xLength,yLength){
+        console.log("calcx",xStart," calcy", yStart);
+
+        this.xStart = xStart;
+        this.yStart =yStart;
+        this.xLength = xLength;
+        this.yLength = yLength;
 
         let arr = [];
         let xSplit = xLength/this.pxX;//find size of bins to split x and y
@@ -54,6 +64,16 @@ class Mandlebrot {
         return a;
     }
 
+
+    getNewCoords(newStartX,newStartY,newXLength,newYLength){
+        let xSplit = this.xLength/this.pxX;//find size of bins to split x and y
+        let ySplit = this.yLength/this.pxY;
+        let a = [this.xStart+newStartX*xSplit,this.yStart+(this.yLength-newStartY*ySplit),newXLength*xSplit,newYLength*ySplit]
+        return a;
+        
+
+    }
+
     HsvToRgb(h,s,v){
         let a;
         h = h%360
@@ -85,9 +105,6 @@ class Mandlebrot {
         return (el+m)*255;
     })
     }
-
-
-
 }
 
 export default Mandlebrot;
