@@ -1,4 +1,4 @@
-import Canvas from './Canvas';
+import Controller from './Controller'
 import './App.css';
 
 function App() {
@@ -8,9 +8,7 @@ function App() {
         <p>
          Nice
         </p>
-        <Canvas id = "can">
-
-        </Canvas>
+        <Controller></Controller>
 
       </header>
     </div>
