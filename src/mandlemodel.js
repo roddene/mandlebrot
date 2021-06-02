@@ -7,12 +7,13 @@ class Mandlebrot {
         this.yStart = 0;
         this.xLength = 0;
         this.yLength=0;
+        this.c = 0
     }
 
 
-    calcArray(xStart,yStart,xLength,yLength){
-        console.log("calcx",xStart," calcy", yStart);
-        console.log("calcxlength",xLength," calcylength",yLength);
+    calcArray(xStart,yStart,xLength,yLength,type,constant){
+        //console.log("calcx",xStart," calcy", yStart);
+        //console.log("calcxlength",xLength," calcylength",yLength);
 
         this.xStart = xStart;
         this.yStart =yStart;
@@ -22,17 +23,28 @@ class Mandlebrot {
         let arr = [];
         let xSplit = xLength/this.pxX;//find size of bins to split x and y
         let ySplit = yLength/this.pxY;
-
+        
         for(let j = 0;j<this.pxY;j++){
             for(let i = 0;i<this.pxX;i++){
+                if (type === "mandlebrot"){
                 const result = this.iterateMandle(xStart+i*xSplit,yStart+j*ySplit);
                 if(result[0]){
                     arr.push(0);
                 }else{
                     arr.push(result[1]);
                 }
+                } else{
+                    //console.log("julia");
+                    const result = this.iterateJulia(xStart+i*xSplit,yStart+j*ySplit,constant);
+                    if(result[0]){
+                        arr.push(0);
+                    }else{
+                        arr.push(result[1]);
+                    }
+                }
             }
         }
+
         return arr;
     }
 
@@ -50,6 +62,21 @@ class Mandlebrot {
         return [true,0];
     }
 
+    iterateJulia(a,b,c){
+        let x = a;
+        let y = b;
+        for(let i = 0;i<this.iterateCount;i++){
+            const oldx = x//keep x value so it can be used to find complex value
+            x = x**2-y**2+c[0];
+            y = 2*oldx*y+c[1];
+            if((x*x+y*y) > 4){
+                return [false,i+1];//plus one so it works on values outside of r = 2 circle
+            }
+        }
+        return [true,0];
+    }
+    
+
     getColors(colorCount,pallette){
         let a = []
         let itersplit = (360/colorCount);
@@ -61,13 +88,12 @@ class Mandlebrot {
             a.push(color[1]);
             a.push(color[2]);
         }
-        console.log(a.length/3);
+        //console.log(a.length/3);
         return a;
     }
 
 
     getNewCoords(newStartX,newStartY,newXLength,newYLength){
-        console.log("coords",newStartY);
         let xSplit = this.xLength/this.pxX;//find size of bins to split x and y
         let ySplit = this.yLength/this.pxY;
         let a = [this.xStart+newStartX*xSplit,this.yStart+(newStartY*ySplit),newXLength*xSplit,newYLength*ySplit]

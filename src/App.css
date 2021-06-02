@@ -37,9 +37,5 @@
   }
 }
 
-.rectangle {
-  border: 1px solid #FFFFFF;
-  position: absolute;
-  z-index: 100;
-}
+
 

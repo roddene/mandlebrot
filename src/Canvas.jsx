@@ -11,15 +11,15 @@ const Canvas = props => {
     startX:0,
     startY:0
   }
-  let dimensions = [1800,1200]
-  let drawingRect = false
+  let dimensions = props.dimensions;
+  let drawingRect = false;
   let mandle = new MandleBrot(dimensions[1],dimensions[0]);
   let colorCount = 250;
   let colors = mandle.getColors(colorCount,null);//second for pallette
-  
+  console.log("props",props.dimensions);
   
   const draw = (ctx,xStart,yStart,xLength,yLength) => {
-    let arr = mandle.calcArray(xStart,yStart,xLength,yLength);    
+    let arr = mandle.calcArray(xStart,yStart,xLength,yLength,props.type,props.constant);    
     
     imageData = ctx.createImageData(dimensions[0], dimensions[1]);
     for (let i = 0; i < imageData.data.length; i += 4) {
@@ -39,9 +39,7 @@ const Canvas = props => {
       ctx.putImageData(imageData, 20, 20);//why 20 20
   }
 
-  const calculate = ctx =>{
 
-  }
 
   const handleLeftClick = event =>{
     const canvas = canvasRef.current
@@ -68,9 +66,12 @@ const Canvas = props => {
   const handleRightClick = event =>{
     event.preventDefault();
     drawingRect = false;
-    console.log(mandle.getNewCoords((mouse.x - mouse.startX < 0) ? mouse.x : mouse.startX,(mouse.y - mouse.startY < 0) ? mouse.y: mouse.startY,
-      Math.abs(mouse.x - mouse.startX),Math.abs(mouse.y - mouse.startY)));
-
+    canvasRef.current.style.cursor = "default"
+    const coords = mandle.getNewCoords((mouse.x - mouse.startX < 0) ? mouse.x : mouse.startX,(mouse.y - mouse.startY < 0) ? mouse.y: mouse.startY,
+      Math.abs(mouse.x - mouse.startX),Math.abs(mouse.y - mouse.startY));
+    if (props.type === "mandlebrot"){
+      props.rightClick(coords);
+    }
     const context =  canvasRef.current.getContext('2d')
     context.clearRect(0,0,dimensions[0],dimensions[1]);
     context.putImageData(imageData,20,20);
@@ -98,7 +99,11 @@ const Canvas = props => {
     const context = canvas.getContext('2d')
     
     //Our draw come here
+    if(props.type==="mandlebrot"){
     draw(context,-2,-1,3,2)
+    }else if(props.type==="julia"){
+      draw(context,-1.5,-1,3,2)
+    }
   }, [draw])
   
   return <canvas ref={canvasRef} {...props} width = {dimensions[0]} height = {dimensions[1]} onMouseMove = {handleMove} onContextMenu = {handleRightClick} onClick = {handleLeftClick}/>
