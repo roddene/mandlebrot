@@ -19,9 +19,10 @@ class Controller extends React.Component {
         render(){
     return (
       <div className="controller">
+          
           <Canvas dimensions = {[900,600]} type = "mandlebrot" constant = {[0,0]} rightClick = {this.handleRightClick}></Canvas>
           <Canvas dimensions = {[900,600]} type = "julia" constant = {this.state.c}></Canvas>
-      </div>
+      </div>//may need to add handler later??
     );
   
 
