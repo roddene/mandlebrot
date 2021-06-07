@@ -1,3 +1,8 @@
+//import onmessage from "./mandleworker";
+//import Worker from 'worker-loader!./worker.js';
+
+
+
 class Mandlebrot {
     constructor(pxY,pxX){
         this.pxY = pxY;
@@ -8,95 +13,81 @@ class Mandlebrot {
         this.xLength = 0;
         this.yLength=0;
         this.c = 0;
-        /*
-        this.workerCount = 1;
+        
+        this.workerCount = 0;
         this.workers = [];
-        this.workers.push(new Worker('./mandleworker.js'));
+        
         //this.workers[0].onmessage = this.jobFinished;
         //console.log("length",this.workers[0]);
-        */
+        
     }
 
 
-    /*setWorkerCount(workerCount){
-        for(let i = 0;i<this.workerCount;i++){
-            this.workers[i].terminate();
-        }
-        for(let i = 0;i<workerCount;i++){
-            this.workers.push(new Worker('mandleworker.js'));
-        }
+    createWorker(i,type,constant,workerCount){
+        const xStart = this.xStart;
+        const yStart = this.yStart;
+        const xLength = this.xLength;
+        const yLength = this.yLength;
+        const pxY = this.pxY;
+        const pxX = this.pxX;
+        const iterateCount = this.iterateCount;
+        let workers = this.workers;
+        return new Promise(function(resolve,reject){
+            
+            //
+            //this.workerCount++;
+            workers[i].postMessage([xStart,yStart,xLength,yLength,pxY*i/workerCount,pxX,pxY/workerCount,type,constant,iterateCount,workerCount]);
+            workers[i].onmessage = function(msg){
+                resolve(msg.data);
+            }
+            workers[i].onerror = reject;
+            
+        });
     }
-*/
+
+
+
 
 
     calcArray(xStart,yStart,xLength,yLength,type,constant,workerCount){
-        /*console.log("calcx",xStart," calcy", yStart);
+        //console.log("calcx",xStart," calcy", yStart);
         //console.log("calcxlength",xLength," calcylength",yLength);
+        //console.log("constant",constant);
         if (this.workerCount !== workerCount){
-            //this.setWorkerCount(workerCount);
+            for(let i = 0;i<this.workerCount;i++){
+                this.workers[i].terminate();
+            }
+            for(let i = 0;i<workerCount;i++){
+                this.workers.push(new Worker('./mandleworker.js'));
+            }
+            this.workerCount = workerCount;
+            
         }
-        */
+        
         this.xStart = xStart;
         this.yStart =yStart;
         this.xLength = xLength;
         this.yLength = yLength;
 
-        let arr = new Array(this.pxY*this.pxX);
-        let xSplit = xLength/this.pxX;//find size of bins to split x and y
-        let ySplit = yLength/this.pxY;
+        let arr = [];
+        //let xSplit = xLength/this.pxX;//find size of bins to split x and y
+        //let ySplit = yLength/this.pxY;
         
-        for(let j = 0;j<this.pxY;j++){
-            for(let i = 0;i<this.pxX;i++){
-                if (type === "mandlebrot"){
-                const result = this.iterateMandle(xStart+i*xSplit,yStart+j*ySplit);
-                if(result[0]){
-                    arr[j*this.pxX+i] = 0;
-                }else{
-                    arr[j*this.pxX+i] = result[1];
-                }
-                } else{
-                    //console.log("julia");
-                    const result = this.iterateJulia(xStart+i*xSplit,yStart+j*ySplit,constant);
-                    if(result[0]){
-                        arr[j*this.pxX+i] = 0;
-                    }else{
-                        arr[j*this.pxX+i] = result[1];
-                    }
-                }
-            }
+        let promises = []
+        for(let i = 0;i<workerCount;i++){
+            promises.push(this.createWorker(i,type,constant,workerCount))
+            //this.workers[i].postMessage([this.xStart,this.yStart,this.xLength,this.yLength,this.pxY*i/this.workerCount,this.pxX,this.pxY/this.workerCount,type,constant,this.iterateCount]);
+            
         }
-
-        return arr;
-    }
-
-    iterateMandle(a,b){
-        let x = 0;
-        let y = 0;
-        for(let i = 0;i<this.iterateCount;i++){
-            const oldx = x//keep x value so it can be used to find complex value
-            x = x**2-y**2+a;
-            y = 2*oldx*y+b;
-            if((x*x+y*y) > 4){
-                return [false,i+1];//plus one so it works on values outside of r = 2 circle
-            }
-        }
-        return [true,0];
-    }
-
-    iterateJulia(a,b,c){
-        let x = a;
-        let y = b;
-        for(let i = 0;i<this.iterateCount;i++){
-            const oldx = x//keep x value so it can be used to find complex value
-            x = x**2-y**2+c[0];
-            y = 2*oldx*y+c[1];
-            if((x*x+y*y) > 4){
-                return [false,i+1];//plus one so it works on values outside of r = 2 circle
-            }
-        }
-        return [true,0];
-    }
     
+        return Promise.allSettled(promises).then((data) =>{
+            for(let i = 0;i<data.length;i++){
+                
+                data[i].value.forEach(el => {arr.push(el)},this);
+            }
+            return arr;
+        });
+    }
 
     getColors(colorCount,pallette){
         let a = []

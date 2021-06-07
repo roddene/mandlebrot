@@ -6,7 +6,7 @@ class Canvas extends React.Component {
   constructor(props){
     super(props);
     this.state = {
-      constant: props.constant
+      constant: props.constant,
     }
     this.canvasRef = React.createRef();
     this.imageData = '';
@@ -16,6 +16,7 @@ class Canvas extends React.Component {
       startX:0,
       startY:0
     }
+    this.toReset = false;
     this.dimensions = props.dimensions;
     this.drawingRect = false;
     this.mandle = new MandleBrot(this.dimensions[1],this.dimensions[0]);
@@ -28,12 +29,12 @@ class Canvas extends React.Component {
   
   
  
-  draw = (ctx,xStart,yStart,xLength,yLength) => {
+  draw = async (ctx,xStart,yStart,xLength,yLength) => {
     
-    console.log("draw",this.props.constant);
-    console.log(this.state.constant);
-    let arr = this.mandle.calcArray(xStart,yStart,xLength,yLength,this.props.type,this.props.constant,1);    
-    
+    //console.log("draw",this.props.constant);
+    //console.log(this.state.constant);
+    let arr = await this.mandle.calcArray(xStart,yStart,xLength,yLength,this.props.type,this.props.constant,4);//select core count here    
+    //console.log("arr12124234324",arr);
     this.imageData = ctx.createImageData(this.dimensions[0], this.dimensions[1]);
     for (let i = 0; i < this.imageData.data.length; i += 4) {
         // Modify pixel data
@@ -79,16 +80,24 @@ class Canvas extends React.Component {
   handleRightClick = event =>{
     event.preventDefault();
     
+    
+
     this.canvasRef.current.style.cursor = "default"
-    const coords = this.mandle.getNewCoords((this.mouse.x - this.mouse.startX < 0) ? this.mouse.x : this.mouse.startX,(this.mouse.y - this.mouse.startY < 0) ? this.mouse.y: this.mouse.startY,
-      Math.abs(this.mouse.x - this.mouse.startX),Math.abs(this.mouse.y - this.mouse.startY));
+    
     if (this.props.type === "mandlebrot" &&this.drawingRect ===false){
+      const coords = this.mandle.getNewCoords((this.mouse.x - this.mouse.startX < 0) ? this.mouse.x : this.mouse.startX,(this.mouse.y - this.mouse.startY < 0) ? this.mouse.y: this.mouse.startY,
+      Math.abs(this.mouse.x - this.mouse.startX),Math.abs(this.mouse.y - this.mouse.startY));
       this.props.rightClick(coords);
     }
     this.drawingRect = false;
     const context =  this.canvasRef.current.getContext('2d')
     context.clearRect(0,0,this.dimensions[0],this.dimensions[1]);
     context.putImageData(this.imageData,0,0);
+    if(this.toReset &&this.props.type === "mandlebrot"){
+      this.props.rightClick([0,0,0,0]);
+      this.toReset = false;
+    }
+
     
   }
 
@@ -110,15 +119,18 @@ class Canvas extends React.Component {
     const context = canvas.getContext('2d')
 
     if(this.props.type==="julia"){
+      //console.log("updating",this.props.constant);
       this.draw(context,-1.5,-1,3,2);
     }
   }  
 
   reset = ()=> {
     if (this.props.type === "julia"){
+      //console.log("right click");
       this.props.rightClick([0,0,0,0]);
       return
     }
+    this.toReset = true;
     this.componentDidMount();
   }
   
