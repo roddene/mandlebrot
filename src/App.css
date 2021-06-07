@@ -21,7 +21,7 @@
 
 .viewer{
   float:left;
-  padding:20px;
+  padding:10px;
 }
 
 #button{
@@ -30,4 +30,18 @@
 
 .controller{
   padding:20px
+}
+#dimslider{
+  width:200px
+}
+
+.left{
+  float:left;
+}
+
+.workerdiv{
+  padding:0px
+}
+#workertype{
+  margin:0px;
 }

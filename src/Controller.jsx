@@ -1,11 +1,17 @@
 import Canvas from './Canvas'
 import React from 'react';
+import Slider from '@material-ui/core/Slider';
+import Typography from '@material-ui/core/Typography';
+
+
 
 class Controller extends React.Component {
     constructor(props){
       super(props);  
           this.state = {
-            c:[0,0]
+            c:[0,0],
+            workerCount:1,
+            dimensions:[900,600]
           }
         }
 
@@ -16,12 +22,50 @@ class Controller extends React.Component {
       }));
     }
 
+    changeWorkerCount = (event) =>{
+      this.setState({workerCount:event.target.value})
+    }
+
+    valuetext =(value) =>{
+      const val = value['target'].getAttribute('aria-valuenow');
+      if((val>99 &&val<1600)){
+        this.setState({dimensions:[3*val/2,parseInt(val)]})
+      }else{
+        console.log("error");
+      }
+      
+    }
+
         render(){
     return (
       <div className="controller">
-          
-          <Canvas dimensions = {[900,600]} type = "mandlebrot" constant = {[0,0]} rightClick = {this.handleRightClick}></Canvas>
-          <Canvas dimensions = {[900,600]} type = "julia" constant = {this.state.c} rightClick = {this.handleRightClick}></Canvas>
+        <div class = "workerdiv">
+          <Typography id = "workertype">
+            Workers
+          </Typography>
+          <select id = "worker-select" onChange = {this.changeWorkerCount}>
+            <option value = "1">1</option>
+            <option value = "2">2</option>
+            <option value = "4">4</option>
+            <option value = "8">8</option>
+            <option value = "16">16</option>
+          </select>
+          </div>
+          <div>
+          <Typography id="discrete-slider">
+        Height
+      </Typography>
+          <Slider id = "dimslider" defaultValue={600}
+        onChangeCommitted	={this.valuetext}
+        aria-labelledby="discrete-slider"
+        valueLabelDisplay="auto"
+        step={50}
+        marks
+        min={100}
+        max={1100}></Slider>
+          </div>
+          <Canvas dimensions = {this.state.dimensions} type = "mandlebrot" constant = {[0,0]} rightClick = {this.handleRightClick} workerCount = {this.state.workerCount}></Canvas>
+          <Canvas dimensions = {this.state.dimensions} type = "julia" constant = {this.state.c} rightClick = {this.handleRightClick}  workerCount = {this.state.workerCount}></Canvas>
       </div>//may need to add handler later??
     );
   

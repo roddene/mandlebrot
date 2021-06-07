@@ -19,9 +19,10 @@ class Canvas extends React.Component {
     this.toReset = false;
     this.dimensions = props.dimensions;
     this.drawingRect = false;
-    this.mandle = new MandleBrot(this.dimensions[1],this.dimensions[0]);
+    this.mandle = new MandleBrot(props.dimensions[1],props.dimensions[0]);
     this.colorCount = 250;
     this.colors = this.mandle.getColors(this.colorCount,null);//second for pallette
+    this.workerCount = 1;
     //this.constant = this.props.constant;
     //console.log("props",props.dimensions);
     
@@ -33,9 +34,10 @@ class Canvas extends React.Component {
     
     //console.log("draw",this.props.constant);
     //console.log(this.state.constant);
-    let arr = await this.mandle.calcArray(xStart,yStart,xLength,yLength,this.props.type,this.props.constant,4);//select core count here    
+    let arr = await this.mandle.calcArray(xStart,yStart,xLength,yLength,this.props.type,this.props.constant,this.props.workerCount,this.props.dimensions[1],this.props.dimensions[0]);//select core count here    
+    
     //console.log("arr12124234324",arr);
-    this.imageData = ctx.createImageData(this.dimensions[0], this.dimensions[1]);
+    this.imageData = ctx.createImageData(this.props.dimensions[0], this.props.dimensions[1]);
     for (let i = 0; i < this.imageData.data.length; i += 4) {
         // Modify pixel data
         if(arr[i/4]=== 0){
@@ -65,7 +67,7 @@ class Canvas extends React.Component {
       //console.log((this.mouse.y - this.mouse.startY < 0));
       const coords = this.mandle.getNewCoords((this.mouse.x - this.mouse.startX < 0) ? this.mouse.x : this.mouse.startX,(this.mouse.y - this.mouse.startY < 0) ? this.mouse.y: this.mouse.startY,
       Math.abs(this.mouse.x - this.mouse.startX),Math.abs(this.mouse.y - this.mouse.startY))
-      this.draw(canvas.getContext('2d'),coords[0],coords[1],coords[2],coords[2]*2/3);
+      this.draw(canvas.getContext('2d'),coords[0],coords[1],coords[2],coords[2]*this.props.dimensions[1]/this.props.dimensions[0]);
 
     }else{
       this.mouse.startX = event.nativeEvent.offsetX;
@@ -91,7 +93,7 @@ class Canvas extends React.Component {
     }
     this.drawingRect = false;
     const context =  this.canvasRef.current.getContext('2d')
-    context.clearRect(0,0,this.dimensions[0],this.dimensions[1]);
+    context.clearRect(0,0,this.props.dimensions[0],this.props.dimensions[1]);
     context.putImageData(this.imageData,0,0);
     if(this.toReset &&this.props.type === "mandlebrot"){
       this.props.rightClick([0,0,0,0]);
@@ -108,7 +110,7 @@ class Canvas extends React.Component {
     if (this.drawingRect) {
       //clears and redraws entire image.  Should split and refactor later.
       const context =  this.canvasRef.current.getContext('2d')
-      context.clearRect(0,0,this.dimensions[0],this.dimensions[1]);
+      context.clearRect(0,0,this.props.dimensions[0],this.props.dimensions[1]);
       context.putImageData(this.imageData,0,0);
       context.strokeRect((this.mouse.x - this.mouse.startX < 0) ? this.mouse.x : this.mouse.startX,(this.mouse.y - this.mouse.startY < 0) ? this.mouse.y: this.mouse.startY ,Math.abs(this.mouse.x - this.mouse.startX), Math.abs(this.mouse.y - this.mouse.startY))
   }
@@ -117,10 +119,16 @@ class Canvas extends React.Component {
   componentDidUpdate(){
     const canvas = this.canvasRef.current
     const context = canvas.getContext('2d')
-
+    this.workerCount = this.props.workerCount;
+    
     if(this.props.type==="julia"){
       //console.log("updating",this.props.constant);
       this.draw(context,-1.5,-1,3,2);
+    }
+    
+    if(this.props.dimensions!==this.dimensions){
+      this.dimensions = this.props.dimensions;
+      this.reset();
     }
   }  
 
@@ -153,7 +161,7 @@ class Canvas extends React.Component {
     <div>
     <button onClick = {this.reset}>Reset</button>
     </div>
-    <canvas ref={this.canvasRef} constant = {this.props.constant} key = {this.props.constant} {...this.props} width = {this.dimensions[0]} height = {this.dimensions[1]} onMouseMove = {this.handleMove} onContextMenu = {this.handleRightClick} onClick = {this.handleLeftClick}/>
+    <canvas ref={this.canvasRef} constant = {this.props.constant} key = {this.props.constant} {...this.props} width = {this.props.dimensions[0]} height = {this.props.dimensions[1]} onMouseMove = {this.handleMove} onContextMenu = {this.handleRightClick} onClick = {this.handleLeftClick}/>
     </div>
 )}
 }
