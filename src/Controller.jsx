@@ -10,7 +10,7 @@ class Controller extends React.Component {
         }
 
     handleRightClick = (coords)=>{
-        console.log("setting",coords);
+        //console.log("setting",coords);
     this.setState((state) => ({
         c:[coords[0]+coords[2],coords[1]+coords[3]]//this works for an unknown reason
       }));
@@ -21,7 +21,7 @@ class Controller extends React.Component {
       <div className="controller">
           
           <Canvas dimensions = {[900,600]} type = "mandlebrot" constant = {[0,0]} rightClick = {this.handleRightClick}></Canvas>
-          <Canvas dimensions = {[900,600]} type = "julia" constant = {this.state.c}></Canvas>
+          <Canvas dimensions = {[900,600]} type = "julia" constant = {this.state.c} rightClick = {this.handleRightClick}></Canvas>
       </div>//may need to add handler later??
     );
   

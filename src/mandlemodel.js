@@ -7,20 +7,41 @@ class Mandlebrot {
         this.yStart = 0;
         this.xLength = 0;
         this.yLength=0;
-        this.c = 0
+        this.c = 0;
+        /*
+        this.workerCount = 1;
+        this.workers = [];
+        this.workers.push(new Worker('./mandleworker.js'));
+        //this.workers[0].onmessage = this.jobFinished;
+        //console.log("length",this.workers[0]);
+        */
     }
 
 
-    calcArray(xStart,yStart,xLength,yLength,type,constant){
-        //console.log("calcx",xStart," calcy", yStart);
-        //console.log("calcxlength",xLength," calcylength",yLength);
+    /*setWorkerCount(workerCount){
+        for(let i = 0;i<this.workerCount;i++){
+            this.workers[i].terminate();
+        }
+        for(let i = 0;i<workerCount;i++){
+            this.workers.push(new Worker('mandleworker.js'));
+        }
+    }
+*/
 
+
+    calcArray(xStart,yStart,xLength,yLength,type,constant,workerCount){
+        /*console.log("calcx",xStart," calcy", yStart);
+        //console.log("calcxlength",xLength," calcylength",yLength);
+        if (this.workerCount !== workerCount){
+            //this.setWorkerCount(workerCount);
+        }
+        */
         this.xStart = xStart;
         this.yStart =yStart;
         this.xLength = xLength;
         this.yLength = yLength;
 
-        let arr = [];
+        let arr = new Array(this.pxY*this.pxX);
         let xSplit = xLength/this.pxX;//find size of bins to split x and y
         let ySplit = yLength/this.pxY;
         
@@ -29,17 +50,17 @@ class Mandlebrot {
                 if (type === "mandlebrot"){
                 const result = this.iterateMandle(xStart+i*xSplit,yStart+j*ySplit);
                 if(result[0]){
-                    arr.push(0);
+                    arr[j*this.pxX+i] = 0;
                 }else{
-                    arr.push(result[1]);
+                    arr[j*this.pxX+i] = result[1];
                 }
                 } else{
                     //console.log("julia");
                     const result = this.iterateJulia(xStart+i*xSplit,yStart+j*ySplit,constant);
                     if(result[0]){
-                        arr.push(0);
+                        arr[j*this.pxX+i] = 0;
                     }else{
-                        arr.push(result[1]);
+                        arr[j*this.pxX+i] = result[1];
                     }
                 }
             }

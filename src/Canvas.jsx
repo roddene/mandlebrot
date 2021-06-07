@@ -1,112 +1,149 @@
-import React,{useRef,useEffect} from 'react';
+import React from 'react';
 import MandleBrot from './mandlemodel';
 
-const Canvas = props => {
-  
-  const canvasRef = useRef(null)
-  let imageData = '';
-  let mouse = {
-    x:0,
-    y:0,
-    startX:0,
-    startY:0
-  }
-  let dimensions = props.dimensions;
-  let drawingRect = false;
-  let mandle = new MandleBrot(dimensions[1],dimensions[0]);
-  let colorCount = 250;
-  let colors = mandle.getColors(colorCount,null);//second for pallette
-  console.log("props",props.dimensions);
-  
-  const draw = (ctx,xStart,yStart,xLength,yLength) => {
-    let arr = mandle.calcArray(xStart,yStart,xLength,yLength,props.type,props.constant);    
+class Canvas extends React.Component {
+
+  constructor(props){
+    super(props);
+    this.state = {
+      constant: props.constant
+    }
+    this.canvasRef = React.createRef();
+    this.imageData = '';
+    this.mouse = {
+      x:0,
+      y:0,
+      startX:0,
+      startY:0
+    }
+    this.dimensions = props.dimensions;
+    this.drawingRect = false;
+    this.mandle = new MandleBrot(this.dimensions[1],this.dimensions[0]);
+    this.colorCount = 250;
+    this.colors = this.mandle.getColors(this.colorCount,null);//second for pallette
+    //this.constant = this.props.constant;
+    //console.log("props",props.dimensions);
     
-    imageData = ctx.createImageData(dimensions[0], dimensions[1]);
-    for (let i = 0; i < imageData.data.length; i += 4) {
+  }
+  
+  
+ 
+  draw = (ctx,xStart,yStart,xLength,yLength) => {
+    
+    console.log("draw",this.props.constant);
+    console.log(this.state.constant);
+    let arr = this.mandle.calcArray(xStart,yStart,xLength,yLength,this.props.type,this.props.constant,1);    
+    
+    this.imageData = ctx.createImageData(this.dimensions[0], this.dimensions[1]);
+    for (let i = 0; i < this.imageData.data.length; i += 4) {
         // Modify pixel data
         if(arr[i/4]=== 0){
-        imageData.data[i + 0] = 0;  // R value
-        imageData.data[i + 1] = 0;    // G value
-        imageData.data[i + 2] = 0;  // B value
+        this.imageData.data[i + 0] = 0;  // R value
+        this.imageData.data[i + 1] = 0;    // G value
+        this.imageData.data[i + 2] = 0;  // B value
         }else{
         //console.log(arr[i/4])
-        imageData.data[i + 0] = colors[3*(arr[i/4]-1)%colorCount];  // R value
-        imageData.data[i + 1] = colors[(3*(arr[i/4]-1)+1)%colorCount];    // G value
-        imageData.data[i + 2] = colors[(3*(arr[i/4]-1)+2)%colorCount];//mod colorcount with 250 and 1000 should make it cycle thru all colors 4 times.
+        this.imageData.data[i + 0] = this.colors[3*(arr[i/4]-1)%this.colorCount];  // R value
+        this.imageData.data[i + 1] = this.colors[(3*(arr[i/4]-1)+1)%this.colorCount];    // G value
+        this.imageData.data[i + 2] = this.colors[(3*(arr[i/4]-1)+2)%this.colorCount];//mod colorcount with 250 and 1000 should make it cycle thru all colors 4 times.
         }
-        imageData.data[i + 3] = 255;  // A value
+        this.imageData.data[i + 3] = 255;  // A value
       }
-      ctx.putImageData(imageData, 20, 20);//why 20 20
+      ctx.putImageData(this.imageData, 0, 0);
   }
 
 
 
-  const handleLeftClick = event =>{
-    const canvas = canvasRef.current
-    if (drawingRect){
-      drawingRect = false;
+  handleLeftClick = event =>{
+    const canvas = this.canvasRef.current
+    if (this.drawingRect){
+      this.drawingRect = false;
       canvas.style.cursor = "default"
       //dimensions[1]- to account for drawing from bottom left;
-      console.log("????");
-      console.log((mouse.y - mouse.startY < 0));
-      const coords = mandle.getNewCoords((mouse.x - mouse.startX < 0) ? mouse.x : mouse.startX,(mouse.y - mouse.startY < 0) ? mouse.y: mouse.startY,
-      Math.abs(mouse.x - mouse.startX),Math.abs(mouse.y - mouse.startY))
-      draw(canvas.getContext('2d'),coords[0],coords[1],coords[2],coords[2]*2/3);
+      //console.log("????");
+      //console.log((this.mouse.y - this.mouse.startY < 0));
+      const coords = this.mandle.getNewCoords((this.mouse.x - this.mouse.startX < 0) ? this.mouse.x : this.mouse.startX,(this.mouse.y - this.mouse.startY < 0) ? this.mouse.y: this.mouse.startY,
+      Math.abs(this.mouse.x - this.mouse.startX),Math.abs(this.mouse.y - this.mouse.startY))
+      this.draw(canvas.getContext('2d'),coords[0],coords[1],coords[2],coords[2]*2/3);
 
     }else{
-      mouse.startX = event.nativeEvent.offsetX;
-      mouse.startY = event.nativeEvent.offsetY;
-      drawingRect = true;
+      this.mouse.startX = event.nativeEvent.offsetX;
+      this.mouse.startY = event.nativeEvent.offsetY;
+      this.drawingRect = true;
 
       canvas.style.cursor = "crosshair"
     }
 
   }
 
-  const handleRightClick = event =>{
+  handleRightClick = event =>{
     event.preventDefault();
-    drawingRect = false;
-    canvasRef.current.style.cursor = "default"
-    const coords = mandle.getNewCoords((mouse.x - mouse.startX < 0) ? mouse.x : mouse.startX,(mouse.y - mouse.startY < 0) ? mouse.y: mouse.startY,
-      Math.abs(mouse.x - mouse.startX),Math.abs(mouse.y - mouse.startY));
-    if (props.type === "mandlebrot"){
-      props.rightClick(coords);
+    
+    this.canvasRef.current.style.cursor = "default"
+    const coords = this.mandle.getNewCoords((this.mouse.x - this.mouse.startX < 0) ? this.mouse.x : this.mouse.startX,(this.mouse.y - this.mouse.startY < 0) ? this.mouse.y: this.mouse.startY,
+      Math.abs(this.mouse.x - this.mouse.startX),Math.abs(this.mouse.y - this.mouse.startY));
+    if (this.props.type === "mandlebrot" &&this.drawingRect ===false){
+      this.props.rightClick(coords);
     }
-    const context =  canvasRef.current.getContext('2d')
-    context.clearRect(0,0,dimensions[0],dimensions[1]);
-    context.putImageData(imageData,20,20);
+    this.drawingRect = false;
+    const context =  this.canvasRef.current.getContext('2d')
+    context.clearRect(0,0,this.dimensions[0],this.dimensions[1]);
+    context.putImageData(this.imageData,0,0);
     
   }
 
-  const handleMove = event =>{
+   handleMove = event =>{
     //console.log(event)
-    mouse.x = event.nativeEvent.offsetX;
-    mouse.y = event.nativeEvent.offsetY;
-    if (drawingRect) {
+    this.mouse.x = event.nativeEvent.offsetX;
+    this.mouse.y = event.nativeEvent.offsetY;
+    if (this.drawingRect) {
       //clears and redraws entire image.  Should split and refactor later.
-      const context =  canvasRef.current.getContext('2d')
-      context.clearRect(0,0,dimensions[0],dimensions[1]);
-      context.putImageData(imageData,20,20);
-      context.strokeRect((mouse.x - mouse.startX < 0) ? mouse.x : mouse.startX,(mouse.y - mouse.startY < 0) ? mouse.y: mouse.startY ,Math.abs(mouse.x - mouse.startX), Math.abs(mouse.y - mouse.startY))
+      const context =  this.canvasRef.current.getContext('2d')
+      context.clearRect(0,0,this.dimensions[0],this.dimensions[1]);
+      context.putImageData(this.imageData,0,0);
+      context.strokeRect((this.mouse.x - this.mouse.startX < 0) ? this.mouse.x : this.mouse.startX,(this.mouse.y - this.mouse.startY < 0) ? this.mouse.y: this.mouse.startY ,Math.abs(this.mouse.x - this.mouse.startX), Math.abs(this.mouse.y - this.mouse.startY))
   }
   }
 
+  componentDidUpdate(){
+    const canvas = this.canvasRef.current
+    const context = canvas.getContext('2d')
+
+    if(this.props.type==="julia"){
+      this.draw(context,-1.5,-1,3,2);
+    }
+  }  
+
+  reset = ()=> {
+    if (this.props.type === "julia"){
+      this.props.rightClick([0,0,0,0]);
+      return
+    }
+    this.componentDidMount();
+  }
   
-  
-  useEffect(() => {
+  componentDidMount() {
+     
     
-    const canvas = canvasRef.current
+    const canvas = this.canvasRef.current
     const context = canvas.getContext('2d')
     
     //Our draw come here
-    if(props.type==="mandlebrot"){
-    draw(context,-2,-1,3,2)
-    }else if(props.type==="julia"){
-      draw(context,-1.5,-1,3,2)
+    if(this.props.type==="mandlebrot"){
+    this.draw(context,-2,-1,3,2)
+    }else if(this.props.type==="julia"){
+      this.draw(context,-1.5,-1,3,2)
     }
-  }, [draw])
+  }
   
-  return <canvas ref={canvasRef} {...props} width = {dimensions[0]} height = {dimensions[1]} onMouseMove = {handleMove} onContextMenu = {handleRightClick} onClick = {handleLeftClick}/>
+  render(){
+  return (<div class = "viewer">
+    <div>
+    <button onClick = {this.reset}>Reset</button>
+    </div>
+    <canvas ref={this.canvasRef} constant = {this.props.constant} key = {this.props.constant} {...this.props} width = {this.dimensions[0]} height = {this.dimensions[1]} onMouseMove = {this.handleMove} onContextMenu = {this.handleRightClick} onClick = {this.handleLeftClick}/>
+    </div>
+)}
 }
 
 export default Canvas
