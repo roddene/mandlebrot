@@ -21,7 +21,7 @@ class Canvas extends React.Component {
     this.drawingRect = false;
     this.mandle = new MandleBrot(props.dimensions[1],props.dimensions[0]);
     this.colorCount = 250;
-    this.colors = this.mandle.getColors(this.colorCount,null);//second for pallette
+    this.colors = this.mandle.getColors(this.colorCount,"default");//second for pallette
     this.workerCount = 1;
     //this.constant = this.props.constant;
     //console.log("props",props.dimensions);
@@ -34,6 +34,7 @@ class Canvas extends React.Component {
     
     //console.log("draw",this.props.constant);
     //console.log(this.state.constant);
+    this.props.canEdit(false);
     let arr = await this.mandle.calcArray(xStart,yStart,xLength,yLength,this.props.type,this.props.constant,this.props.workerCount,this.props.dimensions[1],this.props.dimensions[0]);//select core count here    
     
     //console.log("arr12124234324",arr);
@@ -45,7 +46,9 @@ class Canvas extends React.Component {
         this.imageData.data[i + 1] = 0;    // G value
         this.imageData.data[i + 2] = 0;  // B value
         }else{
-        //console.log(arr[i/4])
+        if(this.colors[3*(arr[i/4]-1)%this.colorCount] !== 0){
+        console.log("val",)
+        }
         this.imageData.data[i + 0] = this.colors[3*(arr[i/4]-1)%this.colorCount];  // R value
         this.imageData.data[i + 1] = this.colors[(3*(arr[i/4]-1)+1)%this.colorCount];    // G value
         this.imageData.data[i + 2] = this.colors[(3*(arr[i/4]-1)+2)%this.colorCount];//mod colorcount with 250 and 1000 should make it cycle thru all colors 4 times.
@@ -53,6 +56,7 @@ class Canvas extends React.Component {
         this.imageData.data[i + 3] = 255;  // A value
       }
       ctx.putImageData(this.imageData, 0, 0);
+      this.props.canEdit(true);
   }
 
 
@@ -159,6 +163,7 @@ class Canvas extends React.Component {
   render(){
   return (<div class = "viewer">
     <div>
+      <h5>{this.props.type.charAt(0).toUpperCase()+ this.props.type.slice(1)} Set</h5>
     <button onClick = {this.reset}>Reset</button>
     </div>
     <canvas ref={this.canvasRef} constant = {this.props.constant} key = {this.props.constant} {...this.props} width = {this.props.dimensions[0]} height = {this.props.dimensions[1]} onMouseMove = {this.handleMove} onContextMenu = {this.handleRightClick} onClick = {this.handleLeftClick}/>

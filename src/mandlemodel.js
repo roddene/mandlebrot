@@ -36,7 +36,7 @@ class Mandlebrot {
             
             //
             //this.workerCount++;
-            workers[i].postMessage([xStart,yStart,xLength,yLength,pxY*i/workerCount,pxX,pxY/workerCount,type,constant,iterateCount,workerCount]);
+            workers[i].postMessage([xStart,yStart,xLength,yLength,pxY*i/workerCount,pxX,pxY/workerCount,type,constant,iterateCount,workerCount]);//multiply by 48 divide by 50 so rounding is not necessary
             workers[i].onmessage = function(msg){
                 resolve(msg.data);
             }
@@ -50,7 +50,7 @@ class Mandlebrot {
 
 
     calcArray(xStart,yStart,xLength,yLength,type,constant,workerCount,pxY,pxX){
-        //console.log(xStart,yStart,xLength,yLength,type,constant,workerCount,pxY,pxX);
+        console.log(xStart,yStart,xLength,yLength,type,constant,workerCount,pxY,pxX);
         //console.log("calcx",xStart," calcy", yStart);
         //console.log("calcxlength",xLength," calcylength",yLength);
         //console.log("constant",constant);
@@ -81,7 +81,7 @@ class Mandlebrot {
         for(let i = 0;i<workerCount;i++){
             promises.push(this.createWorker(i,type,constant,workerCount))
             //this.workers[i].postMessage([this.xStart,this.yStart,this.xLength,this.yLength,this.pxY*i/this.workerCount,this.pxX,this.pxY/this.workerCount,type,constant,this.iterateCount]);
-            
+
         }
     
         return Promise.allSettled(promises).then((data) =>{
@@ -89,6 +89,7 @@ class Mandlebrot {
                 
                 data[i].value.forEach(el => {arr.push(el)},this);
             }
+            console.log(arr);
             return arr;
         });
     }
@@ -98,8 +99,17 @@ class Mandlebrot {
         let itersplit = (360/colorCount);
         
         for(let i = 0;i<colorCount;i++){
-            
-            let color = this.HsvToRgb(i*itersplit,1,1);
+            //console.log("bluenum",(i*itersplit)%60+120);
+            let color = [];
+            if(pallette === "default"){
+                color = this.HsvToRgb(i*itersplit,1,1);
+            }else if(pallette === "blue"){
+                color = this.HsvToRgb((i*itersplit)%60+120,1,1)
+
+            }else if (pallette ==="green"){
+                color = this.HsvToRgb(120,1,1);
+            }
+            //console.log("colro",color)
             a.push(color[0]);
             a.push(color[1]);
             a.push(color[2]);

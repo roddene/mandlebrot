@@ -10,10 +10,11 @@ onmessage = function(msg){
     const type = data[7];
     const constant = data[8];
     const iterateCount = data[9];
-    const workerCount = data[10]
+    const workerCount = parseInt(data[10]);
     const xSplit = xLength/pxX;
     const ySplit = (yLength/pxY)/workerCount;
 
+    //console.log("worker",data)
     let arr = new Array(pxY*pxX);
     
     for(let j = 0;j<pxY;j++){

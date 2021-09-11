@@ -2,46 +2,77 @@
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
 
 .App-header {
-  background-color: #282c34;
+  background-color: #c7cedc;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
+  color: rgb(0, 0, 0);
+}
+
+.hbox{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+
 }
 
 .viewer{
   float:left;
-  padding:10px;
-}
-
-#button{
+  padding-left:10px;
+  padding-right:10px;
   
 }
+#github{
+  color: rgb(38, 166, 213);
+  font-style: normal;
+  font-size: 20px;
+}
+
+  
 
 .controller{
-  padding:20px
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 #dimslider{
-  width:200px
+  width:200px;
+  
 }
 
 .left{
   float:left;
 }
 
-.workerdiv{
-  padding:0px
-}
+
 #workertype{
-  margin:0px;
+  padding: 0px;
+  margin: 0px;
+}
+
+#worker-select{
+  color:black;
+  border-width: 1px;
+  font-size: 15px;
+  background-color: rgb(255, 255, 255);
+  border-radius: 5px;
+
+}
+
+h5{
+  margin: 0px;
+}
+
+button{
+  color:black;
+  border-width: 1px;
+  font-size: 20px;
+  margin-bottom: 10px;
+  background-color: rgb(255, 255, 255);
+  border-radius: 5px;
 }
