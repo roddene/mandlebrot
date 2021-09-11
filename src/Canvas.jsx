@@ -47,7 +47,6 @@ class Canvas extends React.Component {
         this.imageData.data[i + 2] = 0;  // B value
         }else{
         if(this.colors[3*(arr[i/4]-1)%this.colorCount] !== 0){
-        console.log("val",)
         }
         this.imageData.data[i + 0] = this.colors[3*(arr[i/4]-1)%this.colorCount];  // R value
         this.imageData.data[i + 1] = this.colors[(3*(arr[i/4]-1)+1)%this.colorCount];    // G value
@@ -90,7 +89,7 @@ class Canvas extends React.Component {
 
     this.canvasRef.current.style.cursor = "default"
     
-    if (this.props.type === "mandlebrot" &&this.drawingRect ===false){
+    if (this.props.type === "mandelbrot" &&this.drawingRect ===false){
       const coords = this.mandle.getNewCoords((this.mouse.x - this.mouse.startX < 0) ? this.mouse.x : this.mouse.startX,(this.mouse.y - this.mouse.startY < 0) ? this.mouse.y: this.mouse.startY,
       Math.abs(this.mouse.x - this.mouse.startX),Math.abs(this.mouse.y - this.mouse.startY));
       this.props.rightClick(coords);
@@ -99,7 +98,7 @@ class Canvas extends React.Component {
     const context =  this.canvasRef.current.getContext('2d')
     context.clearRect(0,0,this.props.dimensions[0],this.props.dimensions[1]);
     context.putImageData(this.imageData,0,0);
-    if(this.toReset &&this.props.type === "mandlebrot"){
+    if(this.toReset &&this.props.type === "mandelbrot"){
       this.props.rightClick([0,0,0,0]);
       this.toReset = false;
     }
@@ -153,7 +152,7 @@ class Canvas extends React.Component {
     const context = canvas.getContext('2d')
     
     //Our draw come here
-    if(this.props.type==="mandlebrot"){
+    if(this.props.type==="mandelbrot"){
     this.draw(context,-2,-1,3,2)
     }else if(this.props.type==="julia"){
       this.draw(context,-1.5,-1,3,2)
@@ -171,5 +170,5 @@ class Canvas extends React.Component {
 )}
 }
 
-export default Canvas
+export default Canvas;
 

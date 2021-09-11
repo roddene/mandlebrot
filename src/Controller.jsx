@@ -75,7 +75,7 @@ class Controller extends React.Component {
         max={1100}></Slider>
           </div>
           <div className = "hbox">
-          <Canvas dimensions = {this.state.dimensions} type = "mandlebrot" constant = {[0,0]} rightClick = {this.handleRightClick} workerCount = {this.state.workerCount} canEdit = {this.canEdit}></Canvas>
+          <Canvas dimensions = {this.state.dimensions} type = "mandelbrot" constant = {[0,0]} rightClick = {this.handleRightClick} workerCount = {this.state.workerCount} canEdit = {this.canEdit}></Canvas>
           <Canvas dimensions = {this.state.dimensions} type = "julia" constant = {this.state.c} rightClick = {this.handleRightClick}  workerCount = {this.state.workerCount} canEdit = {this.canEdit}></Canvas>
           </div>
       </div>//may need to add handler later??

@@ -50,7 +50,7 @@ class Mandlebrot {
 
 
     calcArray(xStart,yStart,xLength,yLength,type,constant,workerCount,pxY,pxX){
-        console.log(xStart,yStart,xLength,yLength,type,constant,workerCount,pxY,pxX);
+        //console.log(xStart,yStart,xLength,yLength,type,constant,workerCount,pxY,pxX);
         //console.log("calcx",xStart," calcy", yStart);
         //console.log("calcxlength",xLength," calcylength",yLength);
         //console.log("constant",constant);
@@ -89,7 +89,6 @@ class Mandlebrot {
                 
                 data[i].value.forEach(el => {arr.push(el)},this);
             }
-            console.log(arr);
             return arr;
         });
     }

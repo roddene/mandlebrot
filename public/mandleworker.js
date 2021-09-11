@@ -19,7 +19,7 @@ onmessage = function(msg){
     
     for(let j = 0;j<pxY;j++){
         for(let i = 0;i<pxX;i++){
-            if (type === "mandlebrot"){
+            if (type === "mandelbrot"){
             const result = iterateMandle(xStart+i*xSplit,yStart+(j+pxYStart)*ySplit,iterateCount);//plus pxYStart to offset for each different worker
             if(result[0]){
                 arr[j*pxX+i] = 0;
